@@ -1,0 +1,13 @@
+*.simg
+*.pkl
+*.gff3
+*.gff3.db
+*.gff
+*.gff.db
+*.fa
+*.cdf
+*.fna
+*.pkl.gz
+.vscode/
+__pycache__
+.ipynb*
