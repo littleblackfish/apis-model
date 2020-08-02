@@ -5,9 +5,9 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 #os.environ["CUDA_VISIBLE_DEVICES"]="3"
 
 from utils import *
-from keras_utils import *
+from utils_keras import *
 import numpy as np
-import xarray as xr
+import xarray as xa
 import tensorflow as tf
 from tensorflow import keras
 from sklearn.model_selection import cross_validate, LeaveOneGroupOut
@@ -29,12 +29,11 @@ if __name__ == "__main__":
 
     parser.add_argument("-b", dest="batch_size", help="Batch_size", type=int, default=64)
     parser.add_argument("-e", dest="epochs", help="Number of epochs to train", type=int, default=100)
-    parser.add_argument("-l", dest="logdir", help="TensorBoard logdir.", default="models/logdir")
     args = parser.parse_args()
 
     print (f'Reading {args.data}')
     # Load the data
-    data = xr.load_dataset(args.data)
+    data = xa.load_dataset(args.data)
 
     assert data.radial_pos.min().equals(- data.radial_pos.max())
     max_radius = float(data.radial_pos.max())
@@ -71,7 +70,8 @@ if __name__ == "__main__":
         
         model_name = model_params['name']
 
-        makedirs(args.out_dir, exist_ok=True)
+        log_dir = join(args.out_dir, 'log_dir', f'{model_name}_{args.radius}' )
+        makedirs(log_dir, exist_ok=True)
 
         model_filename = join(args.out_dir, f'{model_name}_{args.radius}')
 
@@ -84,7 +84,7 @@ if __name__ == "__main__":
         callbacks = [ 
             keras.callbacks.EarlyStopping( monitor="val_loss", patience=5, restore_best_weights=True, verbose=1 ),
             keras.callbacks.ReduceLROnPlateau( monitor="val_loss", factor=0.5, patience=2, verbose=1 ),
-            keras.callbacks.TensorBoard(log_dir=f"{args.logdir}/{model_name}")
+            keras.callbacks.TensorBoard(log_dir=log_dir)
             ]
 
         fit_params =dict(
@@ -128,6 +128,10 @@ if __name__ == "__main__":
 
             model.save(f'{model_filename}_{i}.h5')
         
+        scores = np.array(scores)
+
+        print(f'Mean score: {scores.mean():.2f} (std {scores.std():.2f})')
+
         with open(f'{model_filename}_scores.pkl', 'wb') as f : 
             pickle.dump(scores, f)
 
