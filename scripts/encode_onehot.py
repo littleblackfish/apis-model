@@ -36,14 +36,13 @@ def onehot_encode(sequence):
 
 # Parse sequences from fasta
 
+sequences = list()
 for file in args.fasta_files :
     print(f'Reading {file.name}')
 
     if args.reverse_complement :
         # It is best to have reverse complement consecutive to the sequence to make sure they end up in the same batch
         print("Parsing sequences and generating reverse complements..")
-
-        sequences = list()
 
         for record in tqdm(SeqIO.parse(file, "fasta")):
             sequences.append(record)
@@ -62,7 +61,7 @@ for file in args.fasta_files :
     
     if not args.reverse_complement : 
         print("Parsing sequences..")
-        sequences = list(tqdm(SeqIO.parse(file, "fasta")))
+        sequences += list(tqdm(SeqIO.parse(file, "fasta")))
 
 len_sequence = len(sequences[0])
 radius = (len_sequence - 2) / 2
