@@ -82,7 +82,7 @@ if __name__ == "__main__":
 
         callbacks = [ 
             keras.callbacks.EarlyStopping( monitor="val_loss", patience=5, restore_best_weights=True, verbose=1 ),
-            keras.callbacks.ReduceLROnPlateau( monitor="val_loss", factor=0.5, patience=2, verbose=1 ),
+            keras.callbacks.ReduceLROnPlateau( monitor="val_loss", factor=0.2, patience=2, verbose=1 ),
             keras.callbacks.TensorBoard(log_dir=log_dir)
             ]
 
