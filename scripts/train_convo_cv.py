@@ -61,6 +61,11 @@ if __name__ == "__main__":
     print (f'{len(y)} samples after filtering.')
     print (f'{num_positive} positive samples ({100*num_positive/len(y):.1f}%).')
     
+    unique_seqid =  seqid.to_series().unique()
+    unique_seqid.sort()
+    
+    print (f'{len(unique_seqid)} chromosomes.')
+
     with open(args.models) as f:
         models = json.load(f)
 
@@ -95,26 +100,28 @@ if __name__ == "__main__":
         ) 
         scores = list()
 
-        for i, (bulk, test) in enumerate(LeaveOneGroupOut().split(X,y,seqid)) :
+        for i, test_seqid in enumerate(unique_seqid) :
             
             keras.backend.clear_session()
 
             model = keras.models.load_model(f'{model_filename}.h5')
 
+            val_seqid = unique_seqid[(i+1)%len(unique_seqid)]
+
+            test = seqid == test_seqid
+            val  = seqid == val_seqid
+            train = (seqid != test_seqid) & (seqid != val_seqid)
+
+            print (f'Holding out {test_seqid}, validating on {val_seqid}. ')
+            
             X_test  = X.values[test]
             y_test  = y.values[test]
-
-            X_hat = X[bulk]
-            y_hat = y[bulk]
-
-            for train, val in LeaveOneGroupOut().split(X_hat, y_hat, X_hat.seqid) :
-                X_train = X_hat.values[train]
-                y_train = y_hat.values[train]
-
-                X_val = X_hat.values[val]
-                y_val = y_hat.values[val]
-
-                break
+            
+            X_val  = X.values[val]
+            y_val  = y.values[val]
+            
+            X_train  = X.values[train]
+            y_train  = y.values[train]
 
             #set_output_bias(model, y_train)
             
@@ -126,7 +133,7 @@ if __name__ == "__main__":
             print(f'Score: {score}')
             scores.append(score)
 
-            model.save(f'{model_filename}_{i}.h5')
+            model.save(f'{model_filename}_{test_seqid}.h5')
         
         scores = np.array(scores)
 
