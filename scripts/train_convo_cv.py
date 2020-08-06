@@ -25,7 +25,7 @@ if __name__ == "__main__":
     parser.add_argument("-m", dest="models", required=True)
     parser.add_argument("-o", dest="out_dir", default='models')
 
-    parser.add_argument('-r', dest='radius', help='Radius around center CpG', type=int, required=True)
+    parser.add_argument('-r', dest='radius', help='Radius around center CpG', type=int)
 
     parser.add_argument("-b", dest="batch_size", help="Batch_size", type=int, default=64)
     parser.add_argument("-e", dest="epochs", help="Number of epochs to train", type=int, default=100)
@@ -36,9 +36,7 @@ if __name__ == "__main__":
     data = xa.load_dataset(args.data)
 
     assert data.radial_pos.min().equals(- data.radial_pos.max())
-    max_radius = float(data.radial_pos.max())
-
-    assert args.radius <= data.onehot.shape[1] 
+    max_radius = int(data.radial_pos.max())
 
     mask = (data.methylatedin == 0) | (data.methylated_ratio >0.75)
 
@@ -49,8 +47,12 @@ if __name__ == "__main__":
     
     X = data.onehot[mask]
 
-    if args.radius < max_radius :
-        X = X.where(np.abs(X.radial_pos)<=args.radius, drop=True) 
+    if args.radius is None or args.radius == max_radius:
+        radius = max_radius
+    else  : 
+        assert 0 < args.radius < max_radius 
+        radius = args.radius
+        X = X.where(np.abs(X.radial_pos)<=radius, drop=True) 
 
     assert X.position.equals(y.position)
     
@@ -74,11 +76,11 @@ if __name__ == "__main__":
         keras.backend.clear_session()
         
         model_name = model_params['name']
+        
+        model_filename = join(args.out_dir, f'r{radius}_{model_name}')
 
-        log_dir = join(args.out_dir, 'log_dir', f'{model_name}_{args.radius}' )
+        log_dir = join(args.out_dir, 'log_dir', model_filename )
         makedirs(log_dir, exist_ok=True)
-
-        model_filename = join(args.out_dir, f'{model_name}_{args.radius}')
 
         print (f'Will write model to {model_filename}')
 
@@ -141,11 +143,3 @@ if __name__ == "__main__":
 
         with open(f'{model_filename}_scores.pkl', 'wb') as f : 
             pickle.dump(scores, f)
-
-
-        #model.layers[-1].bias.assign([0.0])
-        #print(f'Zero bias loss: {model.evaluate(X_train, y_train, batch_size=2048, verbose=0)}')
-        # Set the output bias
-        #model.layers[-1].bias.assign([np.log(num_positive / num_negative)])
-            #    class_weight = set_output_bias(model, y_train)
-        #print(f'Proper bias loss: {model.evaluate(X_train, y_train, batch_size=2048, verbose=0)}')

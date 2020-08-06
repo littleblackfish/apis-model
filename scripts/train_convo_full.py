@@ -25,7 +25,7 @@ if __name__ == "__main__":
     parser.add_argument("-m", dest="models", required=True)
     parser.add_argument("-o", dest="out_dir", default='models')
 
-    parser.add_argument('-r', dest='radius', help='Radius around center CpG', type=int, required=True)
+    parser.add_argument('-r', dest='radius', help='Radius around center CpG', type=int)
 
     parser.add_argument("-b", dest="batch_size", help="Batch_size", type=int, default=64)
     parser.add_argument("-e", dest="epochs", help="Number of epochs to train", type=int, default=100)
@@ -36,9 +36,7 @@ if __name__ == "__main__":
     data = xa.load_dataset(args.data)
 
     assert data.radial_pos.min().equals(- data.radial_pos.max())
-    max_radius = float(data.radial_pos.max())
-
-    assert args.radius <= data.onehot.shape[1] 
+    max_radius = int(data.radial_pos.max())
 
     mask = (data.methylatedin == 0) | (data.methylated_ratio >0.75)
 
@@ -49,8 +47,12 @@ if __name__ == "__main__":
     
     X = data.onehot[mask]
 
-    if args.radius < max_radius :
-        X = X.where(np.abs(X.radial_pos)<=args.radius, drop=True) 
+    if args.radius is None or args.radius == max_radius:
+        radius = max_radius
+    else  : 
+        assert 0 < args.radius < max_radius 
+        radius = args.radius
+        X = X.where(np.abs(X.radial_pos)<=radius, drop=True) 
 
     assert X.position.equals(y.position)
     
@@ -68,17 +70,17 @@ if __name__ == "__main__":
 
         keras.backend.clear_session()
         
-        model_name = model_params['name']
+        model_name = f"r{radius}_{model_params['name']}_full"
+        
+        model_file = join(args.out_dir, f'{model_name}.h5')
 
-        log_dir = join(args.out_dir, 'log_dir', f'{model_name}_{args.radius}' )
+        log_dir = join(args.out_dir, 'log_dir', model_name )
+        
         makedirs(log_dir, exist_ok=True)
 
-        model_filename = join(args.out_dir, f'{model_name}_{args.radius}')
-
-        print (f'Will write model to {model_filename}')
+        print (f'Will write model to {model_file}')
 
         model = convo_model( input_shape=X[0].shape, verbose=True, **model_params)
-
 
         callbacks = [ 
             keras.callbacks.EarlyStopping( monitor="val_loss", patience=5, restore_best_weights=True, verbose=1 ),
@@ -94,9 +96,6 @@ if __name__ == "__main__":
         ) 
         scores = list()
 
-        keras.backend.clear_session()
-
-
         for train, val in LeaveOneGroupOut().split(X, y, X.seqid) :
             X_train = X.values[train]
             y_train = y.values[train]
@@ -108,4 +107,4 @@ if __name__ == "__main__":
         
         model.fit(X_train, y_train, validation_data = (X_val, y_val), **fit_params) 
 
-        model.save(f'{model_filename}_full.h5')
+        model.save(model_file)
