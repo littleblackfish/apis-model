@@ -1,0 +1,18 @@
+[
+ {
+  "name": "onehot_convo_22",
+  "conv_nfilters": 64,
+  "conv_ksize": 32,
+  "conv_psize": 16,
+  "dense_units": 64,
+  "dropout": 0
+ },
+ {
+  "name": "onehot_convo_19",
+  "conv_nfilters": 128,
+  "conv_ksize": 16,
+  "conv_psize": 32,
+  "dense_units": 128,
+  "dropout": 0
+ }
+ ]
