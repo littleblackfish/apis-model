@@ -5,8 +5,8 @@ MODELDIR="../models"
 
 SPECIES="Apis_mellifera"
 
-#../scripts/train_convo_cv.py -d ${DATADIR}/${SPECIES}/exon/r500_onehot.cdf  -o ${MODELDIR}/${SPECIES}/exon/ -b 1024 -m models.json -r 500
-#../scripts/train_convo_cv.py -d ${DATADIR}/${SPECIES}/exon/r500_onehot.cdf  -o ${MODELDIR}/${SPECIES}/exon/ -b 1024 -m models.json -r 300
+#../scripts/train_convo_cv.py -d ${DATADIR}/${SPECIES}/exome/r500_onehot.cdf  -o ${MODELDIR}/${SPECIES}/exome/ -b 1024 -m models.json -r 500
+#../scripts/train_convo_cv.py -d ${DATADIR}/${SPECIES}/exome/r500_onehot.cdf  -o ${MODELDIR}/${SPECIES}/exome/ -b 1024 -m models.json -r 300
 
 #../scripts/train_convo_cv.py -d ${DATADIR}/${SPECIES}/genome/r300_onehot.cdf  -o ${MODELDIR}/${SPECIES}/genome/ -b 1024 -m models_two.json -r 300
 #../scripts/train_convo_cv.py -d ${DATADIR}/${SPECIES}/genome/r500_onehot.cdf  -o ${MODELDIR}/${SPECIES}/genome/ -b 1024 -m models_two.json -r 500
