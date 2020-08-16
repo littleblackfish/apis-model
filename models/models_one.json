@@ -1,0 +1,10 @@
+[
+  {
+  "name": "onehot_convo_19",
+  "conv_nfilters": 128,
+  "conv_ksize": 16,
+  "conv_psize": 32,
+  "dense_units": 128,
+  "dropout": 0
+ }
+ ]

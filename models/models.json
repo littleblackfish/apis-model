@@ -1,0 +1,202 @@
+[
+    {
+        "name": "onehot_convo_0",
+        "conv_nfilters": 128,
+        "conv_ksize": 8,
+        "conv_psize": 8,
+        "dense_units": 64,
+        "dropout": 0
+    },
+    {
+        "name": "onehot_convo_1",
+        "conv_nfilters": 256,
+        "conv_ksize": 32,
+        "conv_psize": 32,
+        "dense_units": 64,
+        "dropout": 0.5
+    },
+    {
+        "name": "onehot_convo_2",
+        "conv_nfilters": 256,
+        "conv_ksize": 32,
+        "conv_psize": 32,
+        "dense_units": 64,
+        "dropout": 0.25
+    },
+    {
+        "name": "onehot_convo_3",
+        "conv_nfilters": 64,
+        "conv_ksize": 8,
+        "conv_psize": 8,
+        "dense_units": 64,
+        "dropout": 0
+    },
+    {
+        "name": "onehot_convo_4",
+        "conv_nfilters": 256,
+        "conv_ksize": 8,
+        "conv_psize": 16,
+        "dense_units": 32,
+        "dropout": 0
+    },
+    {
+        "name": "onehot_convo_5",
+        "conv_nfilters": 128,
+        "conv_ksize": 8,
+        "conv_psize": 8,
+        "dense_units": 128,
+        "dropout": 0.5
+    },
+    {
+        "name": "onehot_convo_6",
+        "conv_nfilters": 128,
+        "conv_ksize": 8,
+        "conv_psize": 16,
+        "dense_units": 128,
+        "dropout": 0.25
+    },
+    {
+        "name": "onehot_convo_7",
+        "conv_nfilters": 64,
+        "conv_ksize": 32,
+        "conv_psize": 8,
+        "dense_units": 128,
+        "dropout": 0
+    },
+    {
+        "name": "onehot_convo_8",
+        "conv_nfilters": 256,
+        "conv_ksize": 8,
+        "conv_psize": 16,
+        "dense_units": 64,
+        "dropout": 0.5
+    },
+    {
+        "name": "onehot_convo_9",
+        "conv_nfilters": 64,
+        "conv_ksize": 16,
+        "conv_psize": 32,
+        "dense_units": 32,
+        "dropout": 0.5
+    },
+    {
+        "name": "onehot_convo_10",
+        "conv_nfilters": 64,
+        "conv_ksize": 32,
+        "conv_psize": 8,
+        "dense_units": 32,
+        "dropout": 0
+    },
+    {
+        "name": "onehot_convo_11",
+        "conv_nfilters": 256,
+        "conv_ksize": 16,
+        "conv_psize": 16,
+        "dense_units": 128,
+        "dropout": 0.5
+    },
+    {
+        "name": "onehot_convo_12",
+        "conv_nfilters": 64,
+        "conv_ksize": 8,
+        "conv_psize": 32,
+        "dense_units": 32,
+        "dropout": 0
+    },
+    {
+        "name": "onehot_convo_13",
+        "conv_nfilters": 128,
+        "conv_ksize": 8,
+        "conv_psize": 8,
+        "dense_units": 32,
+        "dropout": 0
+    },
+    {
+        "name": "onehot_convo_14",
+        "conv_nfilters": 256,
+        "conv_ksize": 32,
+        "conv_psize": 8,
+        "dense_units": 64,
+        "dropout": 0.25
+    },
+    {
+        "name": "onehot_convo_15",
+        "conv_nfilters": 64,
+        "conv_ksize": 32,
+        "conv_psize": 16,
+        "dense_units": 128,
+        "dropout": 0.5
+    },
+    {
+        "name": "onehot_convo_16",
+        "conv_nfilters": 128,
+        "conv_ksize": 8,
+        "conv_psize": 8,
+        "dense_units": 128,
+        "dropout": 0.25
+    },
+    {
+        "name": "onehot_convo_17",
+        "conv_nfilters": 256,
+        "conv_ksize": 8,
+        "conv_psize": 8,
+        "dense_units": 128,
+        "dropout": 0.25
+    },
+    {
+        "name": "onehot_convo_18",
+        "conv_nfilters": 256,
+        "conv_ksize": 8,
+        "conv_psize": 32,
+        "dense_units": 32,
+        "dropout": 0
+    },
+    {
+        "name": "onehot_convo_19",
+        "conv_nfilters": 128,
+        "conv_ksize": 16,
+        "conv_psize": 32,
+        "dense_units": 128,
+        "dropout": 0
+    },
+    {
+        "name": "onehot_convo_20",
+        "conv_nfilters": 256,
+        "conv_ksize": 32,
+        "conv_psize": 32,
+        "dense_units": 32,
+        "dropout": 0.5
+    },
+    {
+        "name": "onehot_convo_21",
+        "conv_nfilters": 256,
+        "conv_ksize": 32,
+        "conv_psize": 16,
+        "dense_units": 128,
+        "dropout": 0
+    },
+    {
+        "name": "onehot_convo_22",
+        "conv_nfilters": 64,
+        "conv_ksize": 32,
+        "conv_psize": 16,
+        "dense_units": 64,
+        "dropout": 0
+    },
+    {
+        "name": "onehot_convo_23",
+        "conv_nfilters": 128,
+        "conv_ksize": 16,
+        "conv_psize": 32,
+        "dense_units": 128,
+        "dropout": 0.5
+    },
+    {
+        "name": "onehot_convo_24",
+        "conv_nfilters": 256,
+        "conv_ksize": 16,
+        "conv_psize": 8,
+        "dense_units": 64,
+        "dropout": 0
+    }
+]
