@@ -26,9 +26,12 @@ if __name__ == "__main__":
     parser.add_argument("-o", dest="out_dir", default='models')
 
     parser.add_argument('-r', dest='radius', help='Radius around center CpG', type=int)
+    parser.add_argument('-t', dest='threshold', help='Methylation ratio threshold for positive samples', type=float, required=True)
+
 
     parser.add_argument("-b", dest="batch_size", help="Batch_size", type=int, default=64)
     parser.add_argument("-e", dest="epochs", help="Number of epochs to train", type=int, default=100)
+    parser.add_argument("-f", dest="maxfolds", help="Maximum number of folds", type=int)
     args = parser.parse_args()
 
     print (f'Reading {args.data}')
@@ -38,11 +41,11 @@ if __name__ == "__main__":
     assert data.radial_pos.min().equals(- data.radial_pos.max())
     max_radius = int(data.radial_pos.max())
 
-    mask = (data.methylatedin == 0) | (data.methylated_ratio >0.75)
+    mask = data.methylatedin > 1
 
     seqid = data.seqid[mask]
 
-    y = (data.methylatedin>1) & (data.methylated_ratio>0.75)
+    y = data.methylated_ratio>args.threshold
     y = y[mask]
     
     X = data.onehot[mask]
@@ -75,7 +78,7 @@ if __name__ == "__main__":
 
         keras.backend.clear_session()
         
-        model_name = model_params['name'] 
+        model_name = model_params['name'] +'_full'
         
         model_filename = join(args.out_dir, f'r{radius}_{model_name}')
 
@@ -102,22 +105,16 @@ if __name__ == "__main__":
         ) 
         scores = list()
 
-        for i, test_seqid in enumerate(unique_seqid) :
+        for i, val_seqid in enumerate(unique_seqid) :
             
             keras.backend.clear_session()
 
             model = keras.models.load_model(f'{model_filename}.h5')
 
-            val_seqid = unique_seqid[(i+1)%len(unique_seqid)]
-
-            test = seqid == test_seqid
             val  = seqid == val_seqid
-            train = (seqid != test_seqid) & (seqid != val_seqid)
+            train = seqid != val_seqid
 
-            print (f'Holding out {test_seqid}, validating on {val_seqid}. ')
-            
-            X_test  = X.values[test]
-            y_test  = y.values[test]
+            print (f'Validating on {val_seqid}. ')
             
             X_val  = X.values[val]
             y_val  = y.values[val]
@@ -125,21 +122,11 @@ if __name__ == "__main__":
             X_train  = X.values[train]
             y_train  = y.values[train]
 
-            #set_output_bias(model, y_train)
             
             model.fit(X_train, y_train, validation_data = (X_val, y_val), **fit_params) 
 
-            assert model.metrics_names[1] == 'auc'
+            model.save(f'{model_filename}_{val_seqid}.h5')
 
-            score = model.evaluate(X_test, y_test, batch_size = args.batch_size)[1]
-            print(f'Score: {score}')
-            scores.append(score)
-
-            model.save(f'{model_filename}_{test_seqid}.h5')
         
-        scores = np.array(scores)
 
-        print(f'Mean score: {scores.mean():.2f} (std {scores.std():.2f})')
-
-        with open(f'{model_filename}_scores.pkl', 'wb') as f : 
-            pickle.dump(scores, f)
+        

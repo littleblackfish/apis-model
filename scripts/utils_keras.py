@@ -86,3 +86,52 @@ def set_output_bias(model, y_train=None):
 
     # Return class weights for optional balancing
     return {0: 1, 1: num_negative / num_positive}
+
+from tqdm.notebook import tqdm as tqdm_notebook
+from glob import glob
+
+def test_cv(model_path, data, verbose=False, batch_size=512, tqdm=tqdm_notebook) :
+
+    X,y,seqid = data
+    
+    scores = list()
+    
+    for path in tqdm(list(glob(f'{model_path}_NC*.h5')), leave=False) :
+        
+        test_seqid = path[len(f'{model_path}_'):-3 ]
+               
+        model = keras.models.load_model(path)
+        
+        test = seqid == test_seqid
+        X_test = X[test]
+        y_test = y[test]
+        
+        loss, auc = model.evaluate(X_test,y_test, batch_size=4096, verbose=verbose)
+        
+        scores.append(auc)
+        
+    scores = np.array(scores)
+     
+    print (f'mean: {scores.mean():.2f} std:{scores.std():.2f}')
+    
+    return np.array(scores)
+
+def test_ensemble(model_path, data, verbose=False, batch_size=512, tqdm=tqdm_notebook) :
+
+    X,y = data
+
+    scores = list()
+    
+    for path in tqdm(list(glob(f'{model_path}_NC*.h5')), leave=False) :
+                        
+        model = keras.models.load_model(path)
+        
+        loss, auc = model.evaluate(X,y, batch_size=batch_size, verbose=verbose)
+        
+        scores.append(auc)
+        
+    scores = np.array(scores)
+     
+    print (f'mean: {scores.mean():.2f} std:{scores.std():.2f}')
+    
+    return scores

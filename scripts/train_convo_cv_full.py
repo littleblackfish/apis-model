@@ -63,6 +63,11 @@ if __name__ == "__main__":
     print (f'{len(y)} samples after filtering.')
     print (f'{num_positive} positive samples ({100*num_positive/len(y):.1f}%).')
     
+    unique_seqid =  seqid.to_series().unique()
+    unique_seqid.sort()
+    
+    print (f'{len(unique_seqid)} chromosomes.')
+
     with open(args.models) as f:
         models = json.load(f)
 
@@ -70,17 +75,18 @@ if __name__ == "__main__":
 
         keras.backend.clear_session()
         
-        model_name = f"r{radius}_{model_params['name']}_full"
+        model_name = model_params['name'] + '_full'
         
-        model_file = join(args.out_dir, f'{model_name}.h5')
+        model_filename = join(args.out_dir, f'r{radius}_{model_name}')
 
         log_dir = join(args.out_dir, 'log_dir', model_name )
-        
         makedirs(log_dir, exist_ok=True)
 
-        print (f'Will write model to {model_file}')
+        print (f'Will write model to {model_filename}')
 
         model = convo_model( input_shape=X[0].shape, verbose=True, **model_params)
+
+        model.save(f'{model_filename}.h5', overwrite=True)
 
         callbacks = [ 
             keras.callbacks.EarlyStopping( monitor="val_loss", patience=5, restore_best_weights=True, verbose=1 ),
@@ -96,15 +102,23 @@ if __name__ == "__main__":
         ) 
         scores = list()
 
-        for train, val in LeaveOneGroupOut().split(X, y, X.seqid) :
-            X_train = X.values[train]
-            y_train = y.values[train]
+        for i, val_seqid in enumerate(unique_seqid) :
+            
+            keras.backend.clear_session()
 
-            X_val = X.values[val]
-            y_val = y.values[val]
+            model = keras.models.load_model(f'{model_filename}.h5')
 
-            break
-        
-        model.fit(X_train, y_train, validation_data = (X_val, y_val), **fit_params) 
+            val = seqid == val_seqid
+            train = (seqid != val_seqid)
 
-        model.save(model_file)
+            print (f'Validating on {val_seqid}. ')
+            
+            X_val  = X.values[val]
+            y_val  = y.values[val]
+            
+            X_train  = X.values[train]
+            y_train  = y.values[train]
+
+            model.fit(X_train, y_train, validation_data = (X_val, y_val), **fit_params) 
+
+            model.save(f'{model_filename}_{val_seqid}.h5')

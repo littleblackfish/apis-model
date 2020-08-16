@@ -38,11 +38,11 @@ if __name__ == "__main__":
     assert data.radial_pos.min().equals(- data.radial_pos.max())
     max_radius = int(data.radial_pos.max())
 
-    mask = (data.methylatedin == 0) | (data.methylated_ratio >0.75)
+    mask = (data.methylatedin == 0) | (data.methylated_ratio <0.75)
 
     seqid = data.seqid[mask]
 
-    y = (data.methylatedin>1) & (data.methylated_ratio>0.75)
+    y = (data.methylatedin>1) & (data.methylated_ratio<0.75)
     y = y[mask]
     
     X = data.onehot[mask]
@@ -75,7 +75,7 @@ if __name__ == "__main__":
 
         keras.backend.clear_session()
         
-        model_name = model_params['name'] 
+        model_name = model_params['name'] +'_negative'
         
         model_filename = join(args.out_dir, f'r{radius}_{model_name}')
 
