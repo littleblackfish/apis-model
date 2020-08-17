@@ -87,10 +87,52 @@ def set_output_bias(model, y_train=None):
     # Return class weights for optional balancing
     return {0: 1, 1: num_negative / num_positive}
 
+import xarray as xa
+def get_data(filename, radius=None, threshold=0.75, mode='normal') :
+    
+    data = xa.load_dataset(filename)
+    assert data.radial_pos.min().equals(- data.radial_pos.max())
+    max_radius = float(data.radial_pos.max())
+    assert radius is None or radius <= max_radius
+    
+    if mode=='normal' :
+        mask = (data.methylatedin == 0) | (data.methylated_ratio > threshold)
+        y = (data.methylatedin > 1) & (data.methylated_ratio > threshold)
+    
+    elif mode=='negative' : 
+        mask = (data.methylatedin == 0) | (data.methylated_ratio < threshold)
+        y = (data.methylatedin > 1) & (data.methylated_ratio < threshold)
+
+    elif mode=='methylome' :
+        mask = data.methylatedin > 1 
+        y = data.methylated_ratio>threshold
+    
+    else:
+        raise ValueError('Invalid mode, choose normal, negative, or methylome.') 
+    
+    seqid = data.seqid[mask]
+    y = y[mask]
+    X = data.onehot[mask]
+    
+    if radius is not None and radius < max_radius :
+        X = X.where(np.abs(X.radial_pos) <= radius, drop=True) 
+
+    assert X.position.equals(y.position)
+
+    X = X.values
+    y = y.values
+    seqid = seqid.values
+       
+    filename = '/'.join(filename.split('/')[-2:])
+
+    print (f'{filename}: size: {len(y)}, pos: {y.sum()}, baseline: {y.sum()/len(y):.2f}')
+    
+    return X,y,seqid
+
 from tqdm.notebook import tqdm as tqdm_notebook
 from glob import glob
 
-def test_cv(model_path, data, verbose=False, batch_size=512, tqdm=tqdm_notebook) :
+def test_cv(model_path, data, verbose=False, batch_size=1024, tqdm=tqdm_notebook) :
 
     X,y,seqid = data
     
@@ -106,7 +148,7 @@ def test_cv(model_path, data, verbose=False, batch_size=512, tqdm=tqdm_notebook)
         X_test = X[test]
         y_test = y[test]
         
-        loss, auc = model.evaluate(X_test,y_test, batch_size=4096, verbose=verbose)
+        loss, auc = model.evaluate(X_test,y_test, batch_size=batch_size, verbose=verbose)
         
         scores.append(auc)
         
@@ -116,7 +158,7 @@ def test_cv(model_path, data, verbose=False, batch_size=512, tqdm=tqdm_notebook)
     
     return np.array(scores)
 
-def test_ensemble(model_path, data, verbose=False, batch_size=512, tqdm=tqdm_notebook) :
+def test_ensemble(model_path, data, verbose=False, batch_size=1024, tqdm=tqdm_notebook) :
 
     X,y = data
 
