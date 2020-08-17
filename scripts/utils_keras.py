@@ -106,7 +106,11 @@ def get_data(filename, radius=None, threshold=0.75, mode='normal') :
     elif mode=='methylome' :
         mask = data.methylatedin > 1 
         y = data.methylated_ratio>threshold
-    
+
+    elif mode=='continuous' :
+        mask = data.methylatedin > 1 
+        y = data.methylated_ratio
+
     else:
         raise ValueError('Invalid mode, choose normal, negative, or methylome.') 
     
